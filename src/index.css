@@ -1,0 +1,8 @@
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fdf6f0;--card:#fff;--border:#f0e6d8;--accent:#c0545a;--accent2:#a84349;
+  --text:#2d1f1f;--muted:#9c7e7e;--green:#2e8b57;--blue:#1a73e8;--red:#d23b3b;
+  --gold:#d4956a;--warn:#c97c30
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
