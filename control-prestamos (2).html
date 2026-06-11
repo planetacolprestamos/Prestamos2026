@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Préstamos</title>
+<style>
+:root{--bg:#fdf6f0;--card:#fff;--border:#f0e6d8;--accent:#c0545a;--accent2:#a84349;--adim:rgba(192,84,90,0.08);--gold:#d4956a;--text:#2d1f1f;--muted:#9c7e7e;--green:#2e8b57;--warn:#c97c30}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;padding:2rem 1rem}
+.wrap{max-width:820px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-size:1.9rem;font-weight:800}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:.9rem;margin-top:.3rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.6rem;margin-bottom:1.2rem;box-shadow:0 4px 20px rgba(192,84,90,0.07)}
+.ctitle{font-size:.65rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;font-weight:700;margin-bottom:1.2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:560px){.g2{grid-template-columns:1fr}}
+label.fl{display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;margin-bottom:.4rem}
+input,select{width:100%;background:#fdf6f0;border:1.5px solid var(--border);color:var(--text);font-family:system-ui,sans-serif;font-size:.93rem;padding:.7rem .9rem;border-radius:10px;outline:none;transition:border-color .2s;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23c0545a' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;padding-right:2rem}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,84,90,0.08)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chips label{cursor:pointer;font-size:.82rem;font-weight:600;color:var(--muted);background:var(--bg);border:1.5px solid var(--border);padding:.4rem .9rem;border-radius:999px;transition:all .2s}
+.chips label:has(input:checked){border-color:var(--accent);background:var(--adim,rgba(192,84,90,0.08));color:var(--accent)}
+.chips input{display:none}
+.btn{background:var(--accent);color:#fff;border:none;font-family:system-ui,sans-serif;font-weight:700;font-size:.95rem;padding:.85rem 2rem;border-radius:12px;cursor:pointer;width:100%;margin-top:.6rem;box-shadow:0 4px 14px rgba(192,84,90,0.25);transition:background .2s}
+.btn:hover{background:var(--accent2)}
+.hidden{display:none}
+.sgrid{display:flex;flex-wrap:wrap;gap:.8rem;margin-bottom:1rem}
+.stat{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:.9rem 1rem;flex:1;min-width:145px}
+.slbl{font-size:.58rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:.25rem}
+.sval{font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums}
+.sval.g{color:var(--green)}.sval.r{color:var(--accent)}.sval.o{color:var(--gold)}
+.nota{background:rgba(212,149,106,0.1);border:1px solid rgba(212,149,106,0.3);border-radius:10px;padding:.75rem 1rem;font-size:.78rem;color:var(--warn);margin-bottom:1rem;line-height:1.5}
+.twrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead tr{background:rgba(192,84,90,0.07)}
+th{text-align:left;padding:.65rem .85rem;font-size:.58rem;letter-spacing:.13em;color:var(--accent);text-transform:uppercase;font-weight:700;white-space:nowrap}
+td{padding:.6rem .85rem;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr.alt{background:rgba(212,149,106,0.06)}
+tr.tot{background:rgba(192,84,90,0.07)}
+tr.tot td{color:var(--accent);font-weight:700;border-top:2px solid #e8a0a4}
+.tabs{display:flex;gap:.4rem;border-bottom:2px solid var(--border);margin-bottom:1rem}
+.tbtn{background:none;border:none;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:700;color:var(--muted);padding:.55rem .9rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:6px 6px 0 0;transition:all .2s}
+.tbtn.on{color:var(--accent);border-bottom-color:var(--accent);background:rgba(192,84,90,0.07)}
+.wbox{background:#fdf0f0;border:1.5px solid #e8a0a4;border-radius:12px;padding:1.1rem;font-size:.8rem;line-height:1.8;color:var(--text);white-space:pre-wrap;word-break:break-word;font-family:monospace}
+.wbox.cli{background:#f0fff4;border-color:#a8d5b5}
+.cbtn{background:transparent;border:1.5px solid #25D366;color:#1a8c47;font-family:system-ui,sans-serif;font-weight:700;font-size:.8rem;padding:.6rem 1.2rem;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;transition:all .2s}
+.cbtn:hover{background:rgba(37,211,102,0.08)}
+.errmsg{color:var(--accent);font-size:.75rem;margin-top:.3rem;display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Calculadora de <span>Préstamos</span></h1>
+    <p class="sub">Gestiona tu cartera con facilidad 💼</p>
+  </header>
+
+  <div class="card">
+    <div class="ctitle">📋 Datos del préstamo</div>
+    <div class="g2">
+      <div>
+        <label class="fl">Nombre del cliente</label>
+        <input type="text" id="nombre" placeholder="Ej: María García">
+      </div>
+      <div>
+        <label class="fl">Capital a prestar ($)</label>
+        <input type="number" id="capital" placeholder="Ej: 500000" min="1">
+        <span class="errmsg" id="ecap">Ingresa un monto válido</span>
+      </div>
+    </div>
+    <div class="g2">
+      <div>
+        <label class="fl">Tasa de interés mensual</label>
+        <select id="tasa">
+          <option value="3">3%</option><option value="4">4%</option><option value="5" selected>5%</option>
+          <option value="6">6%</option><option value="7">7%</option><option value="8">8%</option>
+          <option value="9">9%</option><option value="10">10%</option><option value="11">11%</option>
+          <option value="12">12%</option><option value="13">13%</option><option value="14">14%</option>
+          <option value="15">15%</option><option value="16">16%</option><option value="17">17%</option>
+          <option value="18">18%</option><option value="19">19%</option><option value="20">20%</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Modalidad de pago</label>
+        <select id="modalidad" onchange="onMod()">
+          <option value="diario">Diario</option>
+          <option value="semanal">Semanal</option>
+          <option value="quincenal" selected>Quincenal</option>
+          <option value="mensual">Mensual</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div id="jornada-wrap" style="display:none">
+        <label class="fl">Jornada</label>
+        <select id="jornada">
+          <option value="lv">Lunes a viernes</option>
+          <option value="ms">Martes a sábado</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Número de cuotas</label>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div>
+        <label class="fl">Fecha inicio préstamo</label>
+        <input type="date" id="finicio">
+      </div>
+      <div>
+        <label class="fl">Fecha 1ª cuota</label>
+        <input type="date" id="f1">
+      </div>
+    </div>
+    <button class="btn" onclick="calcular()">✨ Calcular préstamo</button>
+  </div>
+
+  <div id="res" class="hidden">
+    <div class="card">
+      <div class="ctitle">📊 Resumen del crédito</div>
+      <div class="sgrid" id="sgrid"></div>
+      <div class="nota" id="nota"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">🗓️ Tabla de cuotas</div>
+      <div class="twrap"><table id="tabla"></table></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">🖨️ Documentos</div>
+      <button class="btn" onclick="imprimirDocs()" style="background:#2e8b57;box-shadow:0 4px 14px rgba(46,139,87,0.25)">🖨️ Imprimir control interno y hoja del cliente</button>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">📱 Mensajes WhatsApp</div>
+      <div class="tabs">
+        <button class="tbtn on" onclick="tab('int',this)">🔒 Interno</button>
+        <button class="tbtn" onclick="tab('cli',this)">👤 Cliente</button>
+      </div>
+      <div id="tab-int">
+        <div class="wbox" id="wint"></div>
+        <button class="cbtn" onclick="cop('wint','b1')" id="b1">📋 Copiar interno</button>
+      </div>
+      <div id="tab-cli" class="hidden">
+        <div class="wbox cli" id="wcli"></div>
+        <button class="cbtn" onclick="cop('wcli','b2')" id="b2">📋 Copiar cliente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MODS = {
+  diario:    {ops:[20,30,40,50,60]},
+  semanal:   {ops:[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]},
+  quincenal: {ops:[2,3,4,5,6,7,8,9,10,11,12]},
+  mensual:   {ops:[1,2,3,4,6,7,8,9,10,11,12]}
+};
+
+let nSel = 4;
+
+function onMod(){
+  const mod = document.getElementById('modalidad').value;
+  const ch = document.getElementById('chips');
+  ch.innerHTML = '';
+  MODS[mod].ops.forEach((n,i) => {
+    const l = document.createElement('label');
+    const inp = document.createElement('input');
+    inp.type='radio'; inp.name='nc'; inp.value=n;
+    if(i===1){inp.checked=true; nSel=n;}
+    inp.onchange=()=>nSel=n;
+    l.appendChild(inp);
+    l.appendChild(document.createTextNode(' '+n));
+    ch.appendChild(l);
+  });
+  nSel = MODS[mod].ops[1];
+  document.getElementById('jornada-wrap').style.display = mod==='diario'?'block':'none';
+}
+onMod();
+
+const fmt = n => '$'+Math.round(n).toLocaleString('es-CO');
+const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fmtF = d => {
+  if(!d) return '—';
+  const [y,m,dia] = d.split('-');
+  return parseInt(dia)+' de '+MESES_ES[parseInt(m)-1]+' de '+y;
+};
+
+function sigFecha(fActual, mod, fInicio){
+  const d = new Date(fActual+'T12:00:00');
+  if(mod==='diario'){
+    const j = document.getElementById('jornada').value;
+    d.setDate(d.getDate()+1);
+    let r = d.toISOString().slice(0,10);
+    while(true){
+      const dia = new Date(r+'T12:00:00').getDay();
+      const ok = j==='lv' ? (dia>=1&&dia<=5) : (dia>=2&&dia<=6);
+      if(ok) break;
+      const dd = new Date(r+'T12:00:00'); dd.setDate(dd.getDate()+1);
+      r = dd.toISOString().slice(0,10);
+    }
+    return r;
+  }
+  if(mod==='semanal'){
+    d.setDate(d.getDate()+7);
+    return d.toISOString().slice(0,10);
+  }
+  if(mod==='quincenal'){
+    // Alterna: si dia <= 15 va al ultimo dia del mes, si dia > 15 va al 15 del mes siguiente
+    const dia = d.getDate();
+    if(dia <= 15){
+      const ult = new Date(d.getFullYear(), d.getMonth()+1, 0);
+      return ult.toISOString().slice(0,10);
+    } else {
+      const sig = new Date(d.getFullYear(), d.getMonth()+1, 15);
+      return sig.toISOString().slice(0,10);
+    }
+  }
+  if(mod==='mensual'){
+    const diaOrigen = new Date(fInicio+'T12:00:00').getDate();
+    d.setMonth(d.getMonth()+1);
+    const ult = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+    d.setDate(Math.min(diaOrigen, ult));
+    return d.toISOString().slice(0,10);
+  }
+  return fActual;
+}
+
+function cierreMes(fInicio, m){
+  const d = new Date(fInicio+'T12:00:00');
+  d.setDate(d.getDate()+30*m);
+  return d.toISOString().slice(0,10);
+}
+
+function calcular(){
+  const nombre  = document.getElementById('nombre').value.trim()||'Cliente';
+  const capital = parseFloat(document.getElementById('capital').value);
+  const tasa    = parseFloat(document.getElementById('tasa').value)/100;
+  const mod     = document.getElementById('modalidad').value;
+  const nC      = parseInt(document.querySelector('input[name=nc]:checked')?.value||nSel);
+  const fInicio = document.getElementById('finicio').value || document.getElementById('f1').value;
+  const f1      = document.getElementById('f1').value || fInicio;
+
+  if(!capital||capital<=0){document.getElementById('ecap').style.display='block';return;}
+  document.getElementById('ecap').style.display='none';
+
+  const entregado = capital - capital*tasa;
+  const capXC = capital/nC;
+
+  // Generar fechas
+  const fechas = [f1];
+  for(let i=1;i<nC;i++) fechas.push(sigFecha(fechas[i-1], mod, fInicio));
+
+  // Mes de cada cuota (según fecha inicio + 30 días)
+  const mesDe = fechas.map(f=>{
+    let m=0;
+    while(f > cierreMes(fInicio, m+1)) m++;
+    return m;
+  });
+  const totalMeses = mesDe[mesDe.length-1]+1;
+
+  // Calcular total a cobrar e intereses por mes
+  let totalCobrar=0, saldoM=capital;
+  const resMeses=[];
+  for(let m=0;m<totalMeses;m++){
+    const cEM = mesDe.filter(x=>x===m).length;
+    const intM = m===0 ? capital*tasa : saldoM*tasa;
+    const capM = capXC*cEM;
+    totalCobrar += m===0 ? capM : capM+intM;
+    resMeses.push({mes:m+1, int:intM, saldo:saldoM, nc:cEM});
+    saldoM = Math.max(0, saldoM-capM);
+  }
+  const totalInt = resMeses.reduce((s,r)=>s+r.int, 0);
+  const cuotaFija = Math.ceil((totalCobrar/nC)/1000)*1000;
+
+  // Interés real por cuota
+  const intXC=[];
+  resMeses.forEach(r=>{
+    const ix = r.nc>0 ? (r.mes===1?0:r.int)/r.nc : 0;
+    for(let q=0;q<r.nc;q++) intXC.push(ix);
+  });
+
+  // Construir cuotas
+  let saldoCap=capital, acum=0;
+  const cuotas=[];
+  for(let i=0;i<nC;i++){
+    saldoCap = Math.max(0, saldoCap-capXC);
+    const esUlt = i===nC-1;
+    const total = esUlt ? totalCobrar-acum : cuotaFija;
+    cuotas.push({num:i+1, fecha:fechas[i], cap:capXC, int:intXC[i], total, saldo:saldoCap});
+    if(!esUlt) acum+=cuotaFija;
+  }
+
+  // Resumen
+  let sh = mkStat('💼 Capital aprobado', fmt(capital), '');
+  sh += mkStat('📤 Valor a entregar', fmt(entregado), 'g');
+  resMeses.forEach(r=>{
+    const l = r.mes===1 ? '✅ Interés mes 1 — cobrado hoy' : '📅 Interés mes '+r.mes+' — sobre '+fmt(r.saldo);
+    sh += mkStat(l, fmt(Math.round(r.int)), 'o');
+  });
+  sh += mkStat('💰 Total intereses', fmt(Math.round(totalInt)), 'r');
+  sh += mkStat('📋 Cuota del préstamo', fmt(cuotaFija), 'g');
+  document.getElementById('sgrid').innerHTML = sh;
+  document.getElementById('nota').textContent =
+    '⚠️ El interés del mes 1 fue cobrado al entregar el dinero. Los meses siguientes se recaudan dentro de las cuotas.';
+
+  // Tabla
+  let rows='';
+  cuotas.forEach((c,i)=>{
+    rows+='<tr class="'+(i%2?'alt':'')+'"><td>'+c.num+'</td><td>'+fmtF(c.fecha)+'</td><td>'+fmt(Math.round(c.cap))+'</td><td>'+fmt(Math.round(c.int))+'</td><td><strong>'+fmt(Math.round(c.total))+'</strong></td><td>'+fmt(Math.round(c.saldo))+'</td></tr>';
+  });
+  document.getElementById('tabla').innerHTML=
+    '<thead><tr><th>#</th><th>Fecha</th><th>Abono capital</th><th>Interés real</th><th>Cuota</th><th>Saldo capital</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody>'+
+    '<tfoot><tr class="tot"><td colspan="2">TOTAL</td><td>'+fmt(capital)+'</td><td>'+fmt(Math.round(totalInt-capital*tasa))+'</td><td>'+fmt(totalCobrar)+'</td><td>$0</td></tr></tfoot>';
+
+  // WhatsApp interno
+  let wi='GESTIÓN INTERNA — APROBACIÓN DE CRÉDITO\n━━━━━━━━━━━━━━━━━━━━\n';
+  wi+='Cliente: '+nombre+'\n';
+  wi+='Capital aprobado: '+fmt(capital)+'\n';
+  wi+='Valor entregado: '+fmt(entregado)+'\n';
+  wi+='Modalidad: '+mod+' | '+nC+' cuotas\n';
+  wi+='Cuota nivelada: '+fmt(cuotaFija)+'\n';
+  wi+='━━━━━━━━━━━━━━━━━━━━\n';
+  wi+='DESGLOSE DE INTERESES:\n\n';
+  resMeses.forEach(r=>{
+    wi += r.mes===1
+      ? '  Mes 1 — Cobrado anticipado al entregar: '+fmt(Math.round(r.int))+'\n'
+      : '  Mes '+r.mes+' — Sobre saldo '+fmt(r.saldo)+': '+fmt(Math.round(r.int))+'\n';
+  });
+  wi+='\nTotal intereses: '+fmt(Math.round(totalInt))+'\n';
+  wi+='Capital a recuperar en cuotas: '+fmt(capital)+'\n';
+  wi+='━━━━━━━━━━━━━━━━━━━━\nFECHAS DE PAGO:\n\n';
+  cuotas.forEach(c=>{ wi+='  '+c.num+'. '+fmtF(c.fecha)+' — '+fmt(Math.round(c.total))+' (saldo: '+fmt(Math.round(c.saldo))+')\n'; });
+  wi+='\n━━━━━━━━━━━━━━━━━━━━\nDocumento confidencial. No compartir.';
+
+  // WhatsApp cliente
+  let wc='Señor(a) '+nombre+',\n\nLe informamos que su plan de pagos está activo.\n\n';
+  wc+='Su cuota es de '+fmt(cuotaFija)+' con frecuencia de pago '+mod+'.\n\nFECHAS DE PAGO:\n\n';
+  cuotas.forEach(c=>{ wc+='  '+c.num+'. '+fmtF(c.fecha)+' — '+fmt(Math.round(c.total))+'\n'; });
+  wc+='\nCondiciones:\n\n1. El pago se realiza en efectivo y en la oficina en la fecha acordada.\n\n2. Es responsabilidad del cliente presentarse a pagar. No se realizan cobros a domicilio ni se sale a buscar al cliente.\n\n3. Si por fuerza mayor no puede venir debe avisar con anticipación ya que consignar genera un cargo adicional.\n\n4. El incumplimiento o la ausencia sin aviso genera ajustes en su plan de pagos.\n\nGracias por su compromiso.';
+
+  document.getElementById('wint').textContent=wi;
+  document.getElementById('wcli').textContent=wc;
+
+  _datosImpresion = {nombre, capital, entregado, mod, nC, cuotaFija, totalInt, totalCobrar, tasa, cuotas, fInicio, resMeses};
+
+  document.getElementById('res').classList.remove('hidden');
+  document.getElementById('res').scrollIntoView({behavior:'smooth'});
+}
+
+let _datosImpresion = {};
+
+function imprimirDocs(){
+  const d = _datosImpresion;
+  if(!d || !d.cuotas){alert('Primero calcula un préstamo.');return;}
+  const fmt2 = n => '$'+Math.round(n).toLocaleString('es-CO');
+
+  const filas = d.cuotas.map(c=>`
+    <tr>
+      <td style="text-align:center">${c.num}</td>
+      <td>${fmtF(c.fecha)}</td>
+      <td style="text-align:right">${fmt2(Math.round(c.cap))}</td>
+      <td style="text-align:right">${fmt2(Math.round(c.int))}</td>
+      <td style="text-align:right;font-weight:700">${fmt2(Math.round(c.total))}</td>
+      <td style="text-align:right">${fmt2(Math.round(c.saldo))}</td>
+    </tr>`).join('');
+
+  const filasCliente = d.cuotas.map(c=>`
+    <tr>
+      <td style="text-align:center">${c.num}</td>
+      <td>${fmtF(c.fecha)}</td>
+      <td style="text-align:right;font-weight:700">${fmt2(Math.round(c.total))}</td>
+      <td style="height:36px">&nbsp;</td>
+      <td style="height:36px">&nbsp;</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Documentos</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;font-size:11px;color:#111;padding:20px}
+    h2{font-size:14px;margin-bottom:4px}
+    h3{font-size:11px;color:#555;font-weight:normal;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse;margin-bottom:12px}
+    th{background:#f0e6d8;padding:5px 7px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;border:1px solid #ddd}
+    td{padding:5px 7px;border:1px solid #ddd;font-size:10px}
+    .section{margin-bottom:32px;page-break-inside:avoid}
+    .row2{display:flex;gap:16px;margin-bottom:8px}
+    .kv{flex:1;background:#fafafa;border:1px solid #ddd;border-radius:4px;padding:6px 10px}
+    .kv .k{font-size:8px;color:#888;text-transform:uppercase;letter-spacing:.08em}
+    .kv .v{font-size:12px;font-weight:700;margin-top:2px}
+    .check{border:1px solid #ccc;border-radius:4px;padding:10px 14px;margin-bottom:8px}
+    .check-title{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:8px}
+    .check-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px}
+    .box{width:14px;height:14px;border:1.5px solid #555;border-radius:2px;display:inline-block;flex-shrink:0}
+    .ganancia{color:#2e8b57;font-weight:700}
+    .page-break{page-break-before:always;padding-top:24px;margin-top:8px}
+    @media print{body{padding:10px}}
+  </style></head><body>
+  <div class="section">
+    <h2>Control interno de credito</h2>
+    <h3>Documento confidencial</h3>
+    <div class="row2">
+      <div class="kv"><div class="k">Cliente</div><div class="v">${d.nombre}</div></div>
+      <div class="kv"><div class="k">Capital aprobado</div><div class="v">${fmt2(d.capital)}</div></div>
+      <div class="kv"><div class="k">Valor entregado</div><div class="v">${fmt2(d.entregado)}</div></div>
+    </div>
+    <div class="row2">
+      <div class="kv"><div class="k">Modalidad</div><div class="v">${d.mod} — ${d.nC} cuotas</div></div>
+      <div class="kv"><div class="k">Cuota nivelada</div><div class="v">${fmt2(d.cuotaFija)}</div></div>
+      <div class="kv"><div class="k">Total intereses (ganancia)</div><div class="v ganancia">${fmt2(Math.round(d.totalInt))}</div></div>
+    </div>
+    <div class="check">
+      <div class="check-title">Requisitos verificados</div>
+      <div class="check-item"><span class="box"></span> Cedula</div>
+      <div class="check-item"><span class="box"></span> Antecedentes</div>
+      <div class="check-item"><span class="box"></span> Letra</div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Fecha</th><th>Abono capital</th><th>Interes</th><th>Cuota</th><th>Saldo capital</th></tr></thead>
+      <tbody>${filas}</tbody>
+      <tfoot><tr style="background:#fdf0f0;font-weight:700">
+        <td colspan="2">TOTAL</td>
+        <td style="text-align:right">${fmt2(d.capital)}</td>
+        <td style="text-align:right">${fmt2(Math.round(d.totalInt - d.capital*d.tasa))}</td>
+        <td style="text-align:right">${fmt2(d.totalCobrar)}</td>
+        <td style="text-align:right">$0</td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="section page-break">
+    <h2>Plan de pagos — ${d.nombre}</h2>
+    <h3>Fecha de inicio: ${fmtF(d.fInicio)}</h3>
+    <table>
+      <thead><tr><th>#</th><th>Fecha de pago</th><th>Valor</th><th>Recibido</th><th>Firma cliente</th></tr></thead>
+      <tbody>${filasCliente}</tbody>
+    </table>
+    <p style="font-size:9px;color:#888;margin-top:8px">
+      El pago se realiza en efectivo y en la oficina en la fecha acordada. Es responsabilidad del cliente presentarse a pagar.
+      Si por fuerza mayor no puede venir debe avisar con anticipacion ya que consignar genera un cargo adicional.
+    </p>
+  </div>
+  <script>window.print();<\/script>
+  </body></html>`;
+
+  const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function mkStat(l,v,c){return '<div class="stat"><div class="slbl">'+l+'</div><div class="sval '+c+'">'+v+'</div></div>';}
+function tab(t,btn){
+  document.getElementById('tab-int').classList.toggle('hidden', t!=='int');
+  document.getElementById('tab-cli').classList.toggle('hidden', t!=='cli');
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function cop(id,bid){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
+    const b=document.getElementById(bid),o=b.innerHTML;
+    b.innerHTML='✅ Copiado';
+    setTimeout(()=>b.innerHTML=o,2000);
+  });
+}
+</script>
+</body>
+</html>
