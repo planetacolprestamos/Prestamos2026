@@ -140,19 +140,24 @@ function Calculadora({ onClose, apiUrl }) {
     setAprobando(true)
     setMsgSheets({tipo:'info', txt:'Registrando en Google Sheets...'})
     try {
+      const intAnticipado = resultado.resMeses[0]?.int || 0
       const payload = {
-        accion: 'registrarPrestamo',
-        nombre: resultado.nombre,
-        capital: resultado.capital,
-        entregado: resultado.entregado,
-        tasa: resultado.tasa*100,
-        mod: resultado.mod,
-        nC: resultado.nC,
-        cuotaFija: resultado.cuotaFija,
-        totalInt: resultado.totalInt,
-        totalCobrar: resultado.totalCobrar,
-        fInicio: resultado.fInicio,
-        cuotas: resultado.cuotas.map(c=>({num:c.num,fecha:c.fecha,valor:Math.round(c.total),cap:Math.round(c.cap),int:Math.round(c.int)}))
+        accion: 'guardar',
+        datos: {
+          nombre: resultado.nombre,
+          capital: resultado.capital,
+          entregado: resultado.entregado,
+          intAnticipado: Math.round(intAnticipado),
+          tasa: resultado.tasa*100,
+          mod: resultado.mod,
+          nC: resultado.nC,
+          fInicio: resultado.fInicio,
+          f1: resultado.cuotas[0]?.fecha || resultado.fInicio,
+          cuotaFija: resultado.cuotaFija,
+          totalCobrar: resultado.totalCobrar,
+          totalInt: Math.round(resultado.totalInt),
+          cuotas: resultado.cuotas.map(c=>({num:c.num,fecha:c.fecha,total:Math.round(c.total),cap:Math.round(c.cap),int:Math.round(c.int)}))
+        }
       }
       const res = await fetch(apiUrl, { method:'POST', body: JSON.stringify(payload) })
       const json = await res.json()
